@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checkout - Kairav Zone</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1a202c;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <header class="bg-black fixed w-full z-50">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="index.html">
+                <img src="logo.jpg" alt="Kairav Zone Logo" class="h-8 cursor-pointer">
+            </a>
+            <div>
+                <a href="cart.html" class="text-white hover:text-gray-300">Cart (<span id="cart-count">0</span>)</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 pt-20">
+        <h1 class="text-3xl font-bold mb-6">Checkout</h1>
+        <div id="checkout-products" class="space-y-4 mb-6">
+            <!-- Checkout products will be dynamically inserted here -->
+        </div>
+
+        <h2 class="text-2xl font-bold mt-6">Shipping Information</h2>
+        <form id="shipping-form" class="mt-4">
+            <div class="mb-4">
+                <label for="name" class="block">Name:</label>
+                <input type="text" id="name" class="w-full p-2 rounded bg-gray-800" required>
+            </div>
+            <div class="mb-4">
+                <label for="address" class="block">Address:</label>
+                <input type="text" id="address" class="w-full p-2 rounded bg-gray-800" required>
+            </div>
+            <div class="mb-4">
+                <label for="city" class="block">City:</label>
+                <input type="text" id="city" class="w-full p-2 rounded bg-gray-800" required>
+            </div>
+            <div class="mb-4">
+                <label for="zip" class="block">Zip Code:</label>
+                <input type="text" id="zip" class="w-full p-2 rounded bg-gray-800" required>
+            </div>
+
+            <h2 class="text-2xl font-bold mt-6">Payment Information</h2>
+            <div class="mb-4">
+                <label class="block mb-2">Payment Method:</label>
+                <div class="flex space-x-4">
+                    <label class="flex items-center">
+                        <input type="radio" name="payment-method" value="card" class="mr-2">
+                        Credit/Debit Card
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="payment-method" value="upi" class="mr-2">
+                        UPI
+                    </label>
+                    <label class="flex items-center">
+                        <input type="radio" name="payment-method" value="cod" class="mr-2">
+                        Cash on Delivery
+                    </label>
+                </div>
+            </div>
+            <div id="card-payment" class="mb-4 hidden">
+                <div class="mb-4">
+                    <label for="card-number" class="block">Card Number:</label>
+                    <input type="text" id="card-number" class="w-full p-2 rounded bg-gray-800">
+                </div>
+                <div class="mb-4">
+                    <label for="expiry-date" class="block">Expiry Date:</label>
+                    <input type="text" id="expiry-date" class="w-full p-2 rounded bg-gray-800" placeholder="MM/YY">
+                </div>
+                <div class="mb-4">
+                    <label for="cvv" class="block">CVV:</label>
+                    <input type="text" id="cvv" class="w-full p-2 rounded bg-gray-800">
+                </div>
+            </div>
+            <div id="upi-payment" class="mb-4 hidden">
+                <label for="upi-id" class="block">UPI ID:</label>
+                <input type="text" id="upi-id" class="w-full p-2 rounded bg-gray-800" placeholder="yourname@upi">
+            </div>
+            <div class="mb-4">
+                <p class="text-lg font-semibold mb-2">Supported Payment Methods:</p>
+                <div class="flex space-x-4">
+                    <img src="paytm.jpg" alt="Paytm" class="h-8">
+                    <img src="phone.jpg" alt="PhonePe" class="h-8">
+                    <img src="google.jpg" alt="Google Pay" class="h-8">
+                </div>
+            </div>
+
+            <button type="submit" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded">
+                Complete Purchase
+            </button>
+        </form>
+    </main>
+
+    <script>
+        // Function to render checkout products
+        function renderCheckoutProducts() {
+            const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+            const checkoutProductsContainer = document.getElementById('checkout-products');
+            checkoutProductsContainer.innerHTML = '';
+
+            if (cartItems.length === 0) {
+                checkoutProductsContainer.innerHTML = '<p>No products in cart.</p>';
+                return;
+            }
+
+            let total = 0;
+            cartItems.forEach(item => {
+                const productElement = document.createElement('div');
+                productElement.className = 'bg-gray-800 p-4 rounded-lg flex justify-between items-center';
+                productElement.innerHTML = `
+                    <div class="flex items-center">
+                        <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-cover mr-4">
+                        <div>
+                            <h2 class="text-lg font-semibold">${item.name}</h2>
+                            <p>Price: $${parseFloat(item.price).toFixed(2)}</p>
+                            <p>Quantity: ${item.quantity}</p>
+                        </div>
+                    </div>
+                `;
+                checkoutProductsContainer.appendChild(productElement);
+                total += item.price * item.quantity;
+            });
+
+            const totalElement = document.createElement('div');
+            totalElement.className = 'text-xl font-bold mt-4';
+            totalElement.textContent = `Total: $${total.toFixed(2)}`;
+            checkoutProductsContainer.appendChild(totalElement);
+        }
+
+        // Handle form submission
+        document.getElementById('shipping-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            alert('Thank you for your purchase!');
+            localStorage.removeItem('cart'); // Clear the cart after purchase
+            window.location.href = 'index.html'; // Redirect to home page
+        });
+
+        // Show/hide payment method fields
+        document.querySelectorAll('input[name="payment-method"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                document.getElementById('card-payment').classList.add('hidden');
+                document.getElementById('upi-payment').classList.add('hidden');
+                if (this.value === 'card') {
+                    document.getElementById('card-payment').classList.remove('hidden');
+                } else if (this.value === 'upi') {
+                    document.getElementById('upi-payment').classList.remove('hidden');
+                }
+            });
+        });
+
+        // Initial render
+        renderCheckoutProducts();
+    </script>
+</body>
+</html>

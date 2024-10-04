@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart - Kairav Zone</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1a202c;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+    <header class="bg-black fixed w-full z-50">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="index.html">
+                <img src="logo.jpg" alt="Kairav Zone Logo" class="h-8 cursor-pointer">
+            </a>
+            <div>
+                <a href="cart.html" class="text-white hover:text-gray-300">Cart (<span id="cart-count">0</span>)</a>
+            </div>
+        </nav>
+    </header>
+
+    <main class="container mx-auto px-4 pt-20">
+        <h1 class="text-3xl font-bold mb-6">Shopping Cart</h1>
+        <div id="cart-items" class="space-y-4">
+            <!-- Cart items will be dynamically inserted here -->
+        </div>
+        <div class="mt-6">
+            <button onclick="proceedToCheckout()" class="bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded">
+                Proceed to Pay
+            </button>
+        </div>
+        <script>
+            function proceedToCheckout() {
+                const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+                if (cartItems.length > 0) {
+                    const queryString = new URLSearchParams({ cart: JSON.stringify(cartItems) }).toString();
+                    window.location.href = `checkout.html?${queryString}`;
+                } else {
+                    alert('Your cart is empty. Please add items before proceeding to checkout.');
+                }
+            }
+        </script>
+    </main>
+
+    <script>
+        // Function to render cart items
+        function renderCartItems() {
+            const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+            const cartItemsContainer = document.getElementById('cart-items');
+            cartItemsContainer.innerHTML = '';
+
+            if (cartItems.length === 0) {
+                cartItemsContainer.innerHTML = '<p>Your cart is empty.</p>';
+                return;
+            }
+
+            cartItems.forEach(item => {
+                const itemElement = document.createElement('div');
+                itemElement.className = 'bg-gray-800 p-4 rounded-lg flex justify-between items-center';
+                itemElement.innerHTML = `
+                    <div>
+                        <h2 class="text-lg font-semibold">${item.name}</h2>
+                        <p>Description: ${item.description}</p>
+                        <p>Price: $${item.price}</p>
+                        <p>Quantity: ${item.quantity}</p>
+                    </div>
+                    <div>
+                        <img src="${item.image}" alt="${item.name}" class="w-20 h-20 object-cover">
+                        <button onclick="removeFromCart(${item.id})" class="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded mt-2">
+                            Remove
+                        </button>
+                        <button onclick="addToCart(${item.id})" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded mt-2">
+                            Add to Cart
+                        </button>
+                    </div>
+                `;
+                cartItemsContainer.appendChild(itemElement);
+            });
+        }
+
+        // Function to remove item from cart
+        function removeFromCart(productId) {
+            let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+            cartItems = cartItems.filter(item => item.id !== productId);
+            localStorage.setItem('cart', JSON.stringify(cartItems));
+            updateCartCount();
+            renderCartItems();
+        }
+
+        // Function to add item to cart
+        function addToCart(productId) {
+            let cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+            let existingItem = cartItems.find(item => item.id === productId);
+            
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                // If the item doesn't exist in the cart, we need to add it
+                // This assumes that we have access to the product details
+                // You might need to modify this part based on how you store product information
+                const product = {
+                    id: productId,
+                    name: "Product Name", // Replace with actual product name
+                    description: "Product Description", // Replace with actual description
+                    price: 0, // Replace with actual price
+                    image: "product-image.jpg", // Replace with actual image path
+                    quantity: 1
+                };
+                cartItems.push(product);
+            }
+            
+            localStorage.setItem('cart', JSON.stringify(cartItems));
+            updateCartCount();
+            renderCartItems();
+        }
+
+        // Function to update cart count
+        function updateCartCount() {
+            const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+            const totalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+            document.getElementById('cart-count').textContent = totalItems;
+        }
+
+        // Function to proceed to checkout
+        function proceedToCheckout() {
+            const cartItems = JSON.parse(localStorage.getItem('cart')) || [];
+            if (cartItems.length === 0) {
+                alert('Your cart is empty!');
+                return;
+            }
+            
+            // Store the selected products in sessionStorage
+            sessionStorage.setItem('checkoutItems', JSON.stringify(cartItems));
+            
+            // Redirect to checkout page
+            window.location.href = 'checkout.html';
+        }
+
+        // Initial render
+        renderCartItems();
+        updateCartCount();
+    </script>
+</body>
+</html>
